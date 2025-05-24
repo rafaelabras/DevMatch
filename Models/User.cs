@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace DevMatch.Models
 {
@@ -6,10 +7,13 @@ namespace DevMatch.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+        public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public string Role { get; set; } = null!;
+        public MentorProfile? MentorProfile { get; set; }
 
         public ICollection<Session> SessionsComoMentor { get; set; } = [];
         public ICollection<Session> SessionsComoMentorado { get; set; } = [];
+        public ICollection<ChatMessage> MensagensEnviadas { get; set; } = [];
     }
 }
