@@ -1,5 +1,10 @@
 using DevMatch.Data;
+using DevMatch.Interfaces;
+using DevMatch.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +15,33 @@ builder.Services.AddControllers().AddNewtonsoftJson(settings =>
 {
     settings.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
+
+builder.Services.AddSingleton<ITokenService, TokenService>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(op =>
+{
+    var configuration = builder.Configuration;
+    var tokenKey = Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]);
+
+    op.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidateAudience = true,
+        ValidAudience = configuration["JwtSettings:Audience"],
+        ValidateIssuer = true,
+        ValidIssuer = configuration["JwtSettings:Issuer"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(tokenKey)
+
+    };
+});
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

@@ -11,5 +11,6 @@ namespace DevMatch.Dtos.User
         public string Email { get; set; } = null!;
         [Required]
         public string Password { get; set; }
+
     }
 }

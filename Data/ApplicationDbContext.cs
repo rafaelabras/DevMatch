@@ -5,7 +5,7 @@ namespace DevMatch.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        protected ApplicationDbContext(DbContextOptions options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
         
         public DbSet<MentorProfile> MentorProfile { get; set; }
         public DbSet<Session> Sessions { get; set; }
