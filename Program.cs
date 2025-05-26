@@ -1,4 +1,5 @@
 using DevMatch.Data;
+using DevMatch.Helpers;
 using DevMatch.Interfaces;
 using DevMatch.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,20 +26,9 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(op =>
 {
     var configuration = builder.Configuration;
-    var tokenKey = Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]);
 
-    op.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero,
-        ValidateAudience = true,
-        ValidAudience = configuration["JwtSettings:Audience"],
-        ValidateIssuer = true,
-        ValidIssuer = configuration["JwtSettings:Issuer"],
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(tokenKey)
-
-    };
+    op.TokenValidationParameters = TokenHelpers.GetTokenValidationParameters(configuration);
+    
 });
 
 builder.Services.AddAuthorization();
@@ -64,6 +54,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
