@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DevMatch.Enums;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace DevMatch.Models
@@ -9,7 +10,7 @@ namespace DevMatch.Models
         public string Name { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
-        public string Role { get; set; } = null!;
+        public UserRolesEnum Role { get; set; }
         public MentorProfile? MentorProfile { get; set; }
 
         public ICollection<Session> SessionsComoMentor { get; set; } = [];
