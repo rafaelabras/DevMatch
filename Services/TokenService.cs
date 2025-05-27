@@ -101,7 +101,7 @@ namespace DevMatch.Services
             var handler = new JwtSecurityTokenHandler();
             var validTokenResult = await new JwtSecurityTokenHandler().ValidateTokenAsync(token, tokenParameters);
 
-            if (!validTokenResult.IsValid || result.ClaimsPrincipal == null)
+            if (!validTokenResult.IsValid)
                 return (false, null, null);
 
 

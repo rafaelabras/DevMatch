@@ -6,7 +6,7 @@ namespace DevMatch.Models
     {
         public int Id { get; set; }
         public int SessionId { get; set; } 
-        public int SenderId { get; set; } 
+        public string SenderId { get; set; } 
         public Session Session { get; set; } = null!;
         public User Sender { get; set; } = null!;
         public string Conteudo { get; set; } = null!;

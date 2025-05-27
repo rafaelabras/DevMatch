@@ -5,7 +5,7 @@ namespace DevMatch.Helpers
 {
     public static class TokenHelpers
     {
-        public TokenValidationParameters GetTokenValidationParameters(IConfiguration configuration)
+        public static TokenValidationParameters GetTokenValidationParameters(IConfiguration configuration)
         {
             var tokenKey = Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]);
             return new TokenValidationParameters()

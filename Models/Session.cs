@@ -5,10 +5,10 @@ namespace DevMatch.Models
     public class Session
     {
  
-        public int MentorId { get; set; }
+        public string MentorId { get; set; }
         public User Mentor { get; set; } = null!;
 
-        public int MentoradoId { get; set; }
+        public string MentoradoId { get; set; }
         public User Mentorado { get; set; } = null!;
 
         public int Id { get; set; }
