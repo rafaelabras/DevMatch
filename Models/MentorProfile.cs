@@ -5,7 +5,7 @@ namespace DevMatch.Models
     public class MentorProfile
     {
         [Key]
-        public int UserId { get; set; }
+        public string UserId { get; set; } = null;
         public User User { get; set; } = null!;
         public string Bio { get; set; } = null!;
         public string TechStack { get; set; } = null!;

@@ -1,11 +1,13 @@
 ﻿using DevMatch.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevMatch.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
-        protected ApplicationDbContext(DbContextOptions options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
         
         public DbSet<MentorProfile> MentorProfile { get; set; }
         public DbSet<Session> Sessions { get; set; }
@@ -49,6 +51,31 @@ namespace DevMatch.Data
                 .WithMany(u => u.MensagensEnviadas)
                 .HasForeignKey(fk => fk.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            base.OnModelCreating(modelBuilder);
+            List<IdentityRole> roles = new List<IdentityRole> {
+
+                new IdentityRole
+                {
+                    Id = "1",
+                     Name = "Admin",
+                    NormalizedName = "ADMIN",
+                }, new IdentityRole
+                {
+                    Id = "2",
+                     Name = "Mentor",
+                    NormalizedName = "MENTOR",
+                },
+                 new IdentityRole
+                {
+                     Id = "3",
+                     Name = "Mentorado",
+                    NormalizedName = "MENTORADO",
+                }
+
+
+            };
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
