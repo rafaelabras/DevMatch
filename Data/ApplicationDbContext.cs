@@ -13,7 +13,6 @@ namespace DevMatch.Data
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<ChatMessage> ChatMensagens { get; set; }
-        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -2,10 +2,12 @@
 using DevMatch.Helpers;
 using DevMatch.Interfaces;
 using DevMatch.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 
 namespace DevMatch.Services
@@ -13,9 +15,11 @@ namespace DevMatch.Services
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
-        public TokenService(IConfiguration configuration)
+        private readonly UserManager<User> _userManager;
+        public TokenService(IConfiguration configuration, UserManager<User> userManager)
         {
             _configuration = configuration;
+            _userManager = userManager;
         }
 
         public string GenerateRereshToken(User usuario)
@@ -25,8 +29,8 @@ namespace DevMatch.Services
 
             var claims = new List<Claim>()
             {
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Name),
-                new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+                new Claim(ClaimTypes.Name, usuario.Name),
+                new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 
             };
@@ -46,34 +50,23 @@ namespace DevMatch.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateToken(User usuario)
+        public async Task<string> GenerateToken(User usuario)
         {
             var JwtSettings = _configuration.GetSection("JwtSettings");
             var SecretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings["SecretKey"]));
 
             var claims = new List<Claim>()
             {
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Name),
-                new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+                 new Claim(ClaimTypes.Name, usuario.Name),
+                new Claim(ClaimTypes.Email, usuario.Email),  
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 
             };
 
-            if (usuario.Role == UserRolesEnum.Mentorado)
+            var roles = await _userManager.GetRolesAsync(usuario);
+            foreach(var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, usuario.Role.ToString()));
-            }
-
-
-            if (usuario.Role == UserRolesEnum.Mentor)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, usuario.Role.ToString()));
-            }
-
-
-            if (usuario.Role == UserRolesEnum.Admin)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, usuario.Role.ToString()));
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
             var tempoExpiracao = JwtSettings.GetValue<int>("ExpirationTimeInMinutes");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevMatch.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250527170626_identity")]
-    partial class identity
+    [Migration("20250527210010_IdentityFix")]
+    partial class IdentityFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
