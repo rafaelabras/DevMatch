@@ -28,7 +28,7 @@ namespace DevMatch.Controllers
 
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody]RegisterDto register)
+        public async Task<IActionResult> Register([FromBody] RegisterDto register)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace DevMatch.Controllers
                     Email = register.Email
                 };
 
-               
+
                 var createUser = await _userManager.CreateAsync(user, register.Password);
                 if (createUser.Succeeded) {
 
@@ -55,10 +55,10 @@ namespace DevMatch.Controllers
                         return Ok(new UserResponseDto
 
                         {
-                           Name = user.UserName,
-                           Email = user.Email,
-                           Token = await _tokenService.GenerateToken(user),
-                           RefreshToken = refreshToken
+                            Name = user.UserName,
+                            Email = user.Email,
+                            Token = await _tokenService.GenerateToken(user),
+                            RefreshToken = refreshToken
                         });
                     }
                     else
@@ -73,14 +73,14 @@ namespace DevMatch.Controllers
                 {
                     return BadRequest(createUser.Errors);
                 }
-            }catch (Exception ex)
+            } catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody]LoginDto login)
+        public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace DevMatch.Controllers
                 var user = await _userManager.FindByEmailAsync(login.Email);
                 if (user == null)
                     return BadRequest("Email ou senha incorretos.");
-                
+
 
                 var result = await _signInManager.CheckPasswordSignInAsync(user, login.PasswordHash, false);
                 if (!result.Succeeded)
@@ -106,7 +106,7 @@ namespace DevMatch.Controllers
 
             }
             catch (Exception ex)
-            { 
+            {
                 return StatusCode(500, ex.Message);
             }
 
@@ -119,12 +119,13 @@ namespace DevMatch.Controllers
         {
             try
             {
-
-
                 var email = User.FindFirstValue(ClaimTypes.Email);
 
+                // if (email == null)
+                //   return BadRequest("Token JWT não contém claim de email.");
+
                 if (email == null)
-                    return BadRequest("Token JWT não contém claim de email.");
+                    return BadRequest();
 
                 var usuario = await _userManager.FindByEmailAsync(email);
 
@@ -134,16 +135,16 @@ namespace DevMatch.Controllers
                 var refreshToken = _tokenService.GenerateRereshToken(usuario);
                 if (mudarRole.Succeeded)
                 {
-                   await _tokenService.ValidateToken(refreshToken);
+                    await _tokenService.ValidateToken(refreshToken);
                     return StatusCode(200, new UserResponseDto
-                {
-                    Name = usuario.Name,
-                    Email = usuario.Email,
-                    Token = await _tokenService.GenerateToken(usuario),
-                    RefreshToken = refreshToken
-                });
-                    
-            }
+                    {
+                        Name = usuario.Name,
+                        Email = usuario.Email,
+                        Token = await _tokenService.GenerateToken(usuario),
+                        RefreshToken = refreshToken
+                    });
+
+                }
                 else
                     return BadRequest("Nao foi possivel alterar sua role.");
 
@@ -154,6 +155,12 @@ namespace DevMatch.Controllers
             }
 
 
+        }
+
+        [HttpPost("ValidateToken")]
+        public async Task<IActionResult> ValidateToken()
+        {
+            return null;
         }
 
 

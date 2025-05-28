@@ -2,6 +2,7 @@ using DevMatch.Data;
 using DevMatch.Helpers;
 using DevMatch.Interfaces;
 using DevMatch.Models;
+using DevMatch.Repository;
 using DevMatch.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +21,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(settings =>
 });
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IMentorRepository, MentorRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
