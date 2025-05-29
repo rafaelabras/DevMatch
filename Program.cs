@@ -1,5 +1,6 @@
 using DevMatch.Data;
 using DevMatch.Helpers;
+using DevMatch.Hubs;
 using DevMatch.Interfaces;
 using DevMatch.Models;
 using DevMatch.Repository;
@@ -77,6 +78,11 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+
+builder.Services.AddSignalR();
+
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -107,6 +113,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapHub<ChatHubs>("session-chat-hub");
 
 app.UseRouting();
 app.UseAuthentication();
