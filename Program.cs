@@ -22,6 +22,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(settings =>
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
