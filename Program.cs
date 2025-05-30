@@ -26,6 +26,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IUserIdProvider, NameIdentifierUsedIdProvider>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
