@@ -1,11 +1,13 @@
 using DevMatch.Data;
 using DevMatch.Helpers;
+using DevMatch.Hubs;
 using DevMatch.Interfaces;
 using DevMatch.Models;
 using DevMatch.Repository;
 using DevMatch.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -22,6 +24,9 @@ builder.Services.AddControllers().AddNewtonsoftJson(settings =>
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IUserIdProvider, NameIdentifierUsedIdProvider>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -34,10 +39,24 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(op =>
 {
     var configuration = builder.Configuration;
-    
+
 
     op.TokenValidationParameters = TokenHelpers.GetTokenValidationParameters(configuration);
 
+    op.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var acessToken = context.Request.Query["acess_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(acessToken) && path.StartsWithSegments("/session-chat-hub"))
+            {
+                context.Token = acessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -76,6 +95,14 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+
+builder.Services.AddSignalR().AddHubOptions<ChatHubs>(options =>
+
+options.EnableDetailedErrors = true
+);
+
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -106,6 +133,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapHub<ChatHubs>("session-chat-hub");
+app.MapPost("enviarMensagem", async (string message, IHubContext<ChatHubs> context) =>
+{
+    await context.Clients.All.SendAsync(message);
+
+    return Results.NoContent;
+});
 
 app.UseRouting();
 app.UseAuthentication();
