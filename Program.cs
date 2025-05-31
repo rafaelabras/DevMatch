@@ -1,4 +1,5 @@
 using DevMatch.Data;
+using DevMatch.Dtos.MessageDto;
 using DevMatch.Helpers;
 using DevMatch.Hubs;
 using DevMatch.Interfaces;
@@ -7,6 +8,7 @@ using DevMatch.Repository;
 using DevMatch.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,9 +27,11 @@ builder.Services.AddControllers().AddNewtonsoftJson(settings =>
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-builder.Services.AddScoped<IUserIdProvider, NameIdentifierUsedIdProvider>();
+builder.Services.AddSingleton<IUserIdProvider, NameIdentifierUsedIdProvider>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageService, MessageSevice>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -136,12 +140,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapHub<ChatHubs>("session-chat-hub");
-app.MapPost("enviarMensagem", async (string message, IHubContext<ChatHubs> context) =>
+app.MapPost("enviarMensagem", EnviarMensagem);
+async Task<IResult> EnviarMensagem(ConnectionDto message, [FromServices] IHubContext<ChatHubs> context)
 {
-    await context.Clients.All.SendAsync(message);
-
-    return Results.NoContent;
-});
+    await context.Clients.All.SendAsync("Receive", message.Message);
+    return Results.NoContent();
+}
 
 app.UseRouting();
 app.UseAuthentication();

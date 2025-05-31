@@ -114,7 +114,7 @@ namespace DevMatch.Controllers
         }
 
         [Authorize(Roles = "Mentorado")]
-        [HttpPost("ChangeRole")]
+        [HttpPut("ChangeRole")]
         public async Task<IActionResult> ChangeRole()
         {
             try

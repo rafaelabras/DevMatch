@@ -27,7 +27,7 @@ namespace DevMatch.Controllers
 
         [Authorize]
         [HttpGet("MensagensDaSession{id:int}")]
-        public async Task <IActionResult> MensagensDaSession([FromQuery] int sessionId)
+        public async Task <IActionResult> MensagensDaSession([FromRoute] int id)
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
 
@@ -35,7 +35,7 @@ namespace DevMatch.Controllers
                 return BadRequest();
 
             var user = await _userManager.FindByEmailAsync(email);
-            var mensagens = _messageRepository.CarregarMensagens(user, sessionId);
+            var mensagens = _messageRepository.CarregarMensagens(user, id);
             if (mensagens == null)
                 return NotFound();
 

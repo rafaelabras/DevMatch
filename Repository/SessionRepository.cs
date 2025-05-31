@@ -109,7 +109,43 @@ namespace DevMatch.Repository
 
         }
 
+        public User VerificarUserSession(User user, int sessionId)
+        {
 
+            var userEstarNaSession = user.SessionsComoMentorado.FirstOrDefault(x => x.Id == sessionId);
+            if (userEstarNaSession == null)
+                return null;
 
+            return user;
+
+        }
+
+        public async Task<Session> GetSession(int sessionId)
+        {
+            var acharSession = await _context.Sessions.FirstOrDefaultAsync(x => x.Id == sessionId);
+
+            if (acharSession == null)
+                return null;
+
+            return acharSession;
+        }
+
+        public async Task<SessionResponseDto> ParticiparDeUmaSession(User user, Session session)
+        {
+            if (user.SessionsComoMentorado.Contains(session))
+                return null;
+
+            user.SessionsComoMentorado.Add(session);
+            await _context.SaveChangesAsync();
+
+            return new SessionResponseDto
+            {
+                Id = session.Id,
+                Status = session.Status,
+                Topico = session.Topico,
+                DataStart = session.DataStart,
+                DataEnd = session.DataEnd
+            };
+        }
     }
 }
