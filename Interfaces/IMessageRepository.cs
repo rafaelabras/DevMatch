@@ -1,4 +1,5 @@
-﻿using DevMatch.Models;
+﻿using DevMatch.Dtos.MessageDto;
+using DevMatch.Models;
 
 namespace DevMatch.Interfaces
 {
@@ -6,5 +7,6 @@ namespace DevMatch.Interfaces
     {
         Task SaveMessageAsync (ChatMessage message);
         Task<IEnumerable<ChatMessage>> GetAllMessagesAsync(string userId);
+        Task<ICollection<MessageResponseDto>> CarregarMensagens(User user, int SessionId);
     }
 }

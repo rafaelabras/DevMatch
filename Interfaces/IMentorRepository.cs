@@ -7,5 +7,6 @@ namespace DevMatch.Interfaces
     {
         public User UpdateMentor (RegisterProfileDto update, User user);
         public Task<User> CarregarMentorProfile (User user);
+        public Task<bool> DeletarMentor(User user);
     }
 }

@@ -90,7 +90,7 @@ namespace DevMatch.Controllers
 
 
         [Authorize(Roles = "Mentor")]
-        [HttpPut("AtuaizarSession{id:int}")]
+        [HttpPatch("AtualizarSession/{id:int}")]
         public async Task<IActionResult> AtualizarSession([FromBody] CreateSessionDto session, [FromRoute] int id)
 
         {
@@ -115,7 +115,7 @@ namespace DevMatch.Controllers
 
 
         [Authorize(Roles = "Mentor")]
-        [HttpDelete("DeletarSession{id:int}")]
+        [HttpDelete("DeletarSession/{id:int}")]
         public async Task<IActionResult> DeletarSession([FromRoute] int id)
         {
 
@@ -139,6 +139,29 @@ namespace DevMatch.Controllers
         }
 
 
+        [Authorize]
+        [HttpPost("ParticiparDeSession/{id:int}")]
+        public async Task<IActionResult> ParticiparDeSesssion([FromRoute] int id)
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (email == null)
+                return BadRequest();
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return NotFound();
+
+            var session = await _sessionRepository.GetSession(id);
+            if (session == null)
+                return NotFound();
+
+            var inscreverNaSessao = await _sessionRepository.ParticiparDeUmaSession(user, session);
+            if (inscreverNaSessao == null)
+                return BadRequest("O usuario já esta inscrito na sessão.");
+
+            return Ok(inscreverNaSessao);
+        }
 
 
     }
