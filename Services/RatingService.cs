@@ -14,13 +14,17 @@ namespace DevMatch.Services
             _sessionRepository = sessionRepository;
         }
 
+        public bool VerificarExistenciaRating()
+        {
+            throw new NotImplementedException();
+        }
 
         public AtribuirRatingDto VerificarRating(AtribuirRatingDto rating)
         {
             if (rating.Nota > 6 || rating.Nota < 0)
                 return null;
 
-            var comentario = (string)rating.Comentario;
+            var comentario = rating.Comentario;
 
             if (String.IsNullOrWhiteSpace(comentario) == true)
                 return null;

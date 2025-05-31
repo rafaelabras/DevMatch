@@ -8,5 +8,7 @@ namespace DevMatch.Interfaces
         public AtribuirRatingDto VerificarRating(AtribuirRatingDto rating);
 
         public RatingResponseDto VerificarRatingNaSession(RatingResponseDto rating, User user);
+
+        public bool VerificarExistenciaRating();
     }
 }

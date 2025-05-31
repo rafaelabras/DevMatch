@@ -158,14 +158,34 @@ namespace DevMatch.Controllers
         }
 
         [HttpPost("ValidateToken")]
-        public async Task<IActionResult> ValidateToken()
+        public async Task<IActionResult> ValidateToken([FromBody] string RefreshTokenRequest)
         {
-            return null;
+            if (string.IsNullOrWhiteSpace(RefreshTokenRequest))
+                return BadRequest();
+
+            var validateToken = await _tokenService.ValidateToken(RefreshTokenRequest);
+
+            if(!validateToken.IsValid)
+                return Unauthorized();
+
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (email == null)
+                return Unauthorized();
+
+            var usuario = await _userManager.FindByEmailAsync(email);
+            if (usuario == null)
+                return Unauthorized();
+
+            var token = await _tokenService.GenerateToken(usuario);
+            var refreshToken = _tokenService.GenerateRereshToken(usuario);
+
+            return Ok(new TokenResponse
+            {
+                Token = token,
+                RefreshToken = refreshToken
+            });
+
         }
-
-
-
-
-
     }
 }

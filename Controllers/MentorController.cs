@@ -19,10 +19,12 @@ namespace DevMatch.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IMentorRepository _mentorRepository;
-        public MentorController(UserManager<User> usermanager, IMentorRepository mentorRepository)
+        private readonly IMentorService _mentorService;
+        public MentorController(UserManager<User> usermanager, IMentorRepository mentorRepository, IMentorService mentorservice)
         {
             _userManager = usermanager;
             _mentorRepository = mentorRepository;
+            _mentorService = mentorservice;
         }
       
 
@@ -39,6 +41,11 @@ namespace DevMatch.Controllers
                 return BadRequest();
 
             var user = await _userManager.FindByEmailAsync(email);
+            
+            var verificarMentor = _mentorService.VerifyMentorExiste(user);
+
+            if (verificarMentor == true)
+                return BadRequest("O perfil de mentor já existe.");
 
             var Profile = new MentorProfile
             {
@@ -93,6 +100,30 @@ namespace DevMatch.Controllers
                 Disponibilidade = update.Disponibilidade
             });
 
+        }
+
+        [Authorize(Roles = "Mentor")]
+        [HttpDelete("DeletarProfileMentor")]
+        public async Task<IActionResult> DeletarProfileMentor()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (email == null)
+                return BadRequest();
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            var verificarMentor = _mentorService.VerifyMentorExiste(user);
+
+            if (verificarMentor == false)
+                return BadRequest("O perfil de mentor não existe.");
+
+            var deletar = await _mentorRepository.DeletarMentor(user);
+
+            if (deletar == true)
+                return Ok();
+
+            return BadRequest();
         }
 
     }
