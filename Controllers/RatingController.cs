@@ -29,7 +29,7 @@ namespace DevMatch.Controllers
 
 
         [Authorize]
-        [HttpPost("AvaliarSession{id:int}")]
+        [HttpPost("AvaliarSession/{id:int}")]
         public async Task<IActionResult> AvaliarSession([FromRoute] int id,[FromBody] AtribuirRatingDto nota)
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
@@ -81,6 +81,28 @@ namespace DevMatch.Controllers
 
             return Ok(atualizar);
 
+        }
+
+        [Authorize]
+        [HttpDelete("DeletarNota/{id:int}")]
+
+        public async Task<IActionResult> DeletarNota([FromRoute] int id)
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (email == null)
+                return BadRequest();
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            var carregarUser = await _sessionRepository.CarregarUser(user);
+            if (carregarUser == null)
+                return NotFound();
+
+            var deletarRating = await _ratingRepository.DeletarRating(carregarUser, id);
+            if (deletarRating == false)
+                return BadRequest("Não foi possível deletar a rating.");
+
+            return Ok();
         }
 
     }

@@ -3,6 +3,7 @@ using DevMatch.Dtos.Rating;
 using DevMatch.Interfaces;
 using DevMatch.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevMatch.Repository
 {
@@ -56,6 +57,23 @@ namespace DevMatch.Repository
             };
 
 
+        }
+
+        public async Task<bool> DeletarRating(User user, int id)
+        {
+            var session = user.SessionsComoMentorado.FirstOrDefault(x => x.Id == id);
+
+            if (session == null)
+                return false;
+
+            var rating = session.Rating;
+
+            if (session.Rating == null)
+                return false;
+
+            _context.Ratings.Remove(rating);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

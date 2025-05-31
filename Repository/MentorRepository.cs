@@ -24,6 +24,17 @@ namespace DevMatch.Repository
             return user;
         }
 
+        public async Task<bool> DeletarMentor(User user)
+        {
+            var mentor = await _context.MentorProfile.FirstOrDefaultAsync(x => x == user.MentorProfile);
+
+            var deletar = _context.MentorProfile.Remove(mentor);
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
         public User UpdateMentor(RegisterProfileDto update, User user)
         {
 
@@ -33,6 +44,9 @@ namespace DevMatch.Repository
 
             return user;
         }
+
+
+
 
     }
 }

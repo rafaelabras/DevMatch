@@ -32,6 +32,12 @@ namespace DevMatch.Repository
             if (session == null)
                 return null;
 
+            var sessionsComoMentoradoErating = await _context.Sessions.Include
+                (s => s.Rating)
+                .Where(x => x.MentoradoId == user.Id)
+                .ToListAsync();
+
+            user.SessionsComoMentorado = sessionsComoMentoradoErating;
             user.MentorProfile = mentorprofile;
             user.SessionsComoMentor = session;
 
