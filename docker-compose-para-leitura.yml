@@ -1,0 +1,71 @@
+# O docker compose fica originalemnte uma camada anterior ao projeto em si, caso tente clonar basta colar este arquivo na pasta anterior ao projeto para realizar o docker compose e retirar o "-para-leitura"
+
+volumes:
+    dbapp:
+    nuget-packages:
+    dotnet-tools:
+
+networks:
+  devmatch-network:
+     name: devmatch-network
+     driver: bridge
+
+
+services:
+  devmatch:
+    image: ${DOCKER_REGISTRY-}devmatch
+    build:
+      context: .
+      dockerfile: DevMatch/Dockerfile
+    networks:
+       - devmatch-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DevMatchDb;User Id=sa;Password=sqldb123#_@devmatch;TrustServerCertificate=True;
+    ports:
+      - "8080:8080"
+
+
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+       - ACCEPT_EULA=Y
+       - MSSQL_SA_PASSWORD=sqldb123#_@devmatch
+    volumes:
+        - dbapp:/var/opt/mssql 
+    ports:
+        - 1433:1433
+    networks:
+      - devmatch-network
+
+  migrations:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: ef-migration
+    networks:
+      - devmatch-network
+    depends_on:
+      - sqlserver
+    volumes:
+      - ./DevMatch:/app/DevMatch
+      - nuget-packages:/root/.nuget/packages  
+      - dotnet-tools:/root/.dotnet/tools 
+    working_dir: /app/DevMatch
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=DevMatchDb;User Id=sa;Password=sqldb123#_@devmatch;TrustServerCertificate=True;"
+    entrypoint: >
+           sh -c "cp -r /app/DevMatch /tmp/DevMatch &&
+           cd /tmp/DevMatch &&
+           dotnet restore &&
+           dotnet tool install --global dotnet-ef &&
+           export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+           dotnet ef database update"
+    
+    
+  
+   
+  
+  
+      
