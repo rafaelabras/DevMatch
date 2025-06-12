@@ -138,7 +138,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.MapHub<ChatHubs>("session-chat-hub");
 app.MapPost("enviarMensagem", EnviarMensagem);

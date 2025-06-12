@@ -1,4 +1,4 @@
-@DevMatch_HostAddress = http://localhost:5196
+@DevMatch_HostAddress = http://localhost:8080
 
 GET {{DevMatch_HostAddress}}/weatherforecast/
 Accept: application/json
