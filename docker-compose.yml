@@ -1,0 +1,62 @@
+volumes:
+  dbapp:
+
+networks:
+  devmatch-network:
+    name: devmatch-network
+    driver: bridge
+
+services:
+  devmatch:
+    working_dir: /app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - devmatch-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=DevMatchDb;User Id=sa;Password=sqldb123#_@devmatch;TrustServerCertificate=True;
+    ports:
+      - "8080:8080"
+    entrypoint: ["dotnet", "watch"]
+    command: ["run", "--project", "DevMatch/DevMatch.csproj", "--no-launch-profile", "--urls", "http://+:8080"]
+
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=sqldb123#_@devmatch
+    volumes:
+      - dbapp:/var/opt/mssql
+    ports:
+      - "1433:1433"
+    networks:
+      - devmatch-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'sqldb123#_@devmatch' -Q 'SELECT 1'"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+
+  migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ef-migration
+    networks:
+      - devmatch-network
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection="Server=sqlserver;Database=DevMatchDb;User Id=sa;Password=sqldb123#_@devmatch;TrustServerCertificate=True;"
+      - PATH=/root/.dotnet/tools:$PATH
+    entrypoint: ["dotnet"]
+    command: ["ef", "database", "update"]
