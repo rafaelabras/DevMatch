@@ -1,4 +1,3 @@
-
 ## Build
 bin/
 obj/
@@ -53,12 +52,13 @@ _ReSharper*/
 
 ## Local config
 *.local.json
-appsettings.json
 appsettings.Development.json
 
-
-## Node (se você usar JS/CSS/webpack no projeto)
+## Node (se usar JS/CSS/webpack no projeto)
 node_modules/
+
+## Docker
+docker-compose.override.yml
 
 ## Sistema
 Thumbs.db
