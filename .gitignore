@@ -63,3 +63,11 @@ docker-compose.override.yml
 ## Sistema
 Thumbs.db
 Desktop.ini
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.terraform.lock.hcl
+*.log
+
