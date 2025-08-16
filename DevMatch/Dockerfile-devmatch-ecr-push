@@ -3,12 +3,12 @@ WORKDIR /app
 
 COPY . .
 
-
 RUN ["dotnet", "tool", "install", "--global" ,"dotnet-ef"]
 ENV DOTNET_TOOLS="/root/.dotnet/tools" \
     PATH="$PATH:/root/.dotnet/tools" \
     ASPNETCORE_ENVIRONMENT=Development \
-    ASPNETCORE_URLS=http://+:80 \
-    ConnectionStrings__DefaultConnection="Server=sqlserver;Database=DevMatchDb;User Id=sa;Password=sqldb123#_@devmatch;TrustServerCertificate=True;"
+    ASPNETCORE_URLS=http://+:80 
+ARG DB_CONNECTION_STRING
+ENV ConnectionStrings__DefaultConnection=$DB_CONNECTION_STRING
 ENTRYPOINT [ "dotnet", "watch"]
 CMD [ "run", "--project", "DevMatch/DevMatch.csproj", "--no-launch-profile", "--urls", "http://+:80" ]

@@ -24,11 +24,6 @@ variable "nome_subnet_publica" {
   type        = string
 }
 
-variable "subnet_cidr_block" {
-  description = "cidrblock da vpc"
-  type        = string
-}
-
 variable "subnet_cidr_publico" {
   description = "cidr block da subnet publica"
   type        = string

@@ -1,0 +1,52 @@
+name: CD para o ECS
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+    ECR:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Get code
+          uses: actions/checkout@v4
+        - name: terraform-apply
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          run: |
+            cd infra
+            terraform init
+            terraform apply -auto-approve
+            terraform output -json > tf_outputs.json
+          continue-on-error: false
+        - name: building dockerfile
+          run: |
+            export DB_HOST=$(jq -r '.rds_endpoint.value' infra/tf_outputs.json)
+            export DB_PORT=$(jq -r '.rds_port.value' infra/tf_outputs.json)
+            export DB_USER=$(jq -r '.rds_username.value' infra/tf_outputs.json)
+            export DB_NAME=$(jq -r '.rds_db_name.value' infra/tf_outputs.json)
+            export DB_PASSWORD=$(jq -r '.rds_password.value' infra/tf_outputs.json)
+            echo "DB_CONNECTION_STRING=Server=$DB_HOST,$DB_PORT;Database=$DB_NAME;User Id=$DB_USER;Password=$DB_PASSWORD;TrustServerCertificate=True;" >> $GITHUB_ENV
+        - name: ECR login
+          uses: aws-actions/amazon-ecr-login@v1
+        - name: Build Docker image
+          run: |
+             docker build \
+             --build-arg DB_CONNECTION_STRING="${{ env.DB_CONNECTION_STRING }}" \
+             -t devmatch:latest \
+             -f DevMatch/Dockerfile-devmatch-ecr-push \
+             .
+        - name: Tag Docker image
+          run: |
+           docker tag devmatch:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/devmatch:latest
+        - name: Push Docker image to ECR
+          run: |
+            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/devmatch:latest
+        - name: update ecs
+          run: |
+            aws ecs update-service \
+            --cluster cluster-devmatch \
+            --service devmatch \
+            --force-new-deployment \
+            --region ${{ secrets.AWS_REGION }} 
