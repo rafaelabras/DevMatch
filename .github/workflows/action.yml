@@ -23,7 +23,7 @@ jobs:
         - name: build
           run: dotnet build DevMatch.Tests/DevMatch.Tests.sln --no-restore
         - name: testes
-          run: dotnet test DevMatch.Tests/DevMatch.Tests.csproj/ --logger "json;LogFileName=test.json"
+          run: dotnet test DevMatch.Tests/DevMatch.Tests.csproj --logger "json;LogFileName=test.json"
           continue-on-error: false
         - name: subir test report
           uses: actions/upload-artifact@v4
