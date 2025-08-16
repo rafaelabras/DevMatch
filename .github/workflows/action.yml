@@ -1,0 +1,32 @@
+name: CI com testes
+on:
+  push:
+    branches:
+      - main
+jobs:
+    tests:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Get code
+          uses: actions/checkout@v4
+        - name: cache
+          uses: actions/cache@v4
+          with:
+            path: ~/.nuget/packages
+            key: nuget-${{ hashFiles('**/*.csproj')}}
+            restore-keys: |
+             nuget-
+          id: cache
+        - name: install dependencias
+          id: install
+          run: dotnet restore DevMatch.Tests.sln
+        - name: build
+          run: dotnet build DevMatch.Tests.sln --no-restore
+        - name: testes
+          run: dotnet test DevMatch.Tests/ --logger "json;LogFileName=test.json"
+          continue-on-error: false
+        - name: subir test report
+          uses: actions/upload-artifact@v4
+          with:
+            name: test-report
+            path: DevMatch.Tests/test.json
