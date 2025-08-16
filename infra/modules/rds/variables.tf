@@ -8,8 +8,8 @@ variable "password" {
   type        = string
 }
 
-variable "subnet_name_group" {
-  description = "Nome da subnet para o RDS"
+variable "subnet_id_privada" {
+  description = "ID da subnet privada"
   type        = string
 }
 

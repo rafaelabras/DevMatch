@@ -7,9 +7,18 @@ resource "aws_db_instance" "db_sqlserver" {
   instance_class         = "db.t3.micro"
   username               = var.username
   password               = var.password
-  db_subnet_group_name   = var.subnet_name_group
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
+  vpc_security_group_ids = [var.sg_group_private_id]
   skip_final_snapshot    = true
   license_model          = "license-included"
   storage_type           = "gp2"
-  vpc_security_group_ids = [var.sg_group_private_id]
+}
+
+resource "aws_db_subnet_group" "db_subnet_group" {
+  name       = "devmatch-db-subnet-group"
+  subnet_ids = [var.subnet_id_privada]
+
+  tags = {
+    Name = "DB Subnet group"
+  }
 }
