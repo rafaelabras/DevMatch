@@ -19,11 +19,11 @@ jobs:
           id: cache
         - name: install dependencias
           id: install
-          run: dotnet restore DevMatch.Tests.sln
+          run: dotnet restore DevMatch.Tests/DevMatch.Tests.sln
         - name: build
-          run: dotnet build DevMatch.Tests.sln --no-restore
+          run: dotnet build DevMatch/DevMatch.Tests.sln --no-restore
         - name: testes
-          run: dotnet test DevMatch.Tests/ --logger "json;LogFileName=test.json"
+          run: dotnet test DevMatch/DevMatch.Tests/ --logger "json;LogFileName=test.json"
           continue-on-error: false
         - name: subir test report
           uses: actions/upload-artifact@v4
